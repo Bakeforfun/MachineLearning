@@ -72,18 +72,30 @@ a2 = [ones(m, 1) a2'];
 
 z3 = Theta2 * a2';
 a3 = sigmoid(z3);
+a3 = a3';
 
-J = 1 / m .* sum(-log(a3) * y - log(1 - a3) * (1 - y));
+yvec = eye(num_labels)(y, :);
 
+J = 1 / m .* sum(-diag(log(a3) * yvec') - diag(log(1 - a3) * (1 - yvec)')) ...
++ lambda / 2 / m * (sum(sum(Theta1(:, 2:end).^2)) ...
++ sum(sum(Theta2(:, 2:end).^2)));                      
 
+% Part 2
+d3 = a3 - yvec;
+d2 = d3 * Theta2;
+d2 = d2(:, 2:end) .* sigmoidGradient(z2)';
 
+D1 = d2' * a1;
+D2 = d3' * a2;
 
+% Part 3
+Theta1_temp = Theta1;
+Theta1_temp(:, 1) = 0;
+Theta1_grad = D1 / m + lambda / m * Theta1_temp;
 
-
-
-
-
-
+Theta2_temp = Theta2;
+Theta2_temp(:, 1) = 0;
+Theta2_grad = D2 / m + lambda / m * Theta2_temp;
 
 % -------------------------------------------------------------
 
